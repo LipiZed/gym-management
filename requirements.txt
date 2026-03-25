@@ -1,0 +1,9 @@
+fastapi[standard]
+sqlalchemy
+alembic
+asyncpg
+pydantic>=2.0,<3.0
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic-settings
+psycopg2-binary
