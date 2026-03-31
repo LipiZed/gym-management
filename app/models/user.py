@@ -8,5 +8,5 @@ class User(TimeStampMixin, Base):
     email: Mapped[str] = mapped_column(String(255), unique = True)
     hashed_password: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(default = True)
-    clients: Mapped[Optional["Client"]] = relationship(back_populates = 'user', uselist=False)
-    employees: Mapped[Optional["Employee"]] = relationship(back_populates = 'user', uselist=False)
+    client: Mapped[Optional["Client"]] = relationship(back_populates = 'user', uselist=False)
+    employee: Mapped[Optional["Employee"]] = relationship(back_populates = 'user', uselist=False)

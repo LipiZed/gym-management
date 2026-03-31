@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+
+from sqlalchemy.orm import selectinload
 from app.auth.schemas import UserCreate
 from app.core.config import settings
 from passlib.context import CryptContext
@@ -51,7 +53,11 @@ async def register_user(data: UserCreate, db: AsyncSession):
 
 
 async def authenticate_user(email: str, password: str, db: AsyncSession):
-    result = await db.execute(select(User).where(User.email == email))
+    result = await db.execute(
+        select(User)
+        .where(User.email == email)
+        .options(selectinload(User.client), selectinload(User.employee))
+    )
     user = result.scalar_one_or_none()
     
     if not user:
