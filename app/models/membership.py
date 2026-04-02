@@ -20,4 +20,4 @@ class Membership(Base, TimeStampMixin):
     end_time: Mapped[datetime] = mapped_column()
     status: Mapped[MembershipStatus] = mapped_column(SAEnum(MembershipStatus))
     client: Mapped["Client"] = relationship(back_populates="memberships")
-    plan: Mapped["MembershipPlan"] = relationship(back_populates="memberships")
+    membership_plan: Mapped["MembershipPlan"] = relationship(back_populates="memberships")

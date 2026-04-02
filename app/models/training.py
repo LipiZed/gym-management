@@ -1,3 +1,5 @@
+from typing import List
+
 from app.models.base import Base, TimeStampMixin
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship

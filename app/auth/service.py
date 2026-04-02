@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import selectinload
 from app.auth.schemas import UserCreate
 from app.core.config import settings
-from passlib.context import CryptContext
+import bcrypt
 from jose import jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,15 +12,24 @@ from app.models.client import Client
 from fastapi import HTTPException, status
 
 
-pwd_context = CryptContext(schemes=["bcrypt"])
+def hash_password(password: str) -> str:
+    # 1. Переводим строку пароля в байты (bcrypt работает только с ними)
+    pwd_bytes = password.encode('utf-8')
+    
+    # 2. Генерируем соль
+    salt = bcrypt.gensalt()
+    
+    # 3. Хешируем и переводим результат обратно в строку для БД
+    hashed = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed.decode('utf-8')
 
-def hash_password(password: str):
-    return pwd_context.hash(password)
 
-
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
-
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    # Переводим и чистый пароль, и хеш из базы в байты для сверки
+    return bcrypt.checkpw(
+        plain_password.encode('utf-8'),
+        hashed_password.encode('utf-8')
+    )
 
 
 def create_access_token(data: dict):
@@ -47,8 +56,14 @@ async def register_user(data: UserCreate, db: AsyncSession):
     db.add(new_client)
     await db.commit()
     await db.refresh(new_client)
-    
-    return new_user
+
+    return {
+        "id": new_user.id,
+        "email": new_user.email,
+        "is_active": new_user.is_active,
+        "full_name": new_client.full_name,
+        "phone": new_client.phone,
+    }
 
 
 
