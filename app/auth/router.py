@@ -27,6 +27,6 @@ async def login(data: UserLogin, db: AsyncSession = Depends(get_db)):
         roles.append(user.employee.role)
     token_data = {"user_id": str(user.id), "email": user.email, "roles": roles}
     
-    return service.create_access_token(token_data)
-    
+    token = service.create_access_token(token_data)
+    return {"access_token": token}
         

@@ -13,19 +13,13 @@ from fastapi import HTTPException, status
 
 
 def hash_password(password: str) -> str:
-    # 1. Переводим строку пароля в байты (bcrypt работает только с ними)
     pwd_bytes = password.encode('utf-8')
-    
-    # 2. Генерируем соль
     salt = bcrypt.gensalt()
-    
-    # 3. Хешируем и переводим результат обратно в строку для БД
     hashed = bcrypt.hashpw(pwd_bytes, salt)
     return hashed.decode('utf-8')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    # Переводим и чистый пароль, и хеш из базы в байты для сверки
     return bcrypt.checkpw(
         plain_password.encode('utf-8'),
         hashed_password.encode('utf-8')
