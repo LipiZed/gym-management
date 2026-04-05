@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
     SYNC_DATABASE_URL: str
+    ADMIN_EMAIL: str
+    ADMIN_PASSWORD: str
 
 
 settings = Settings()

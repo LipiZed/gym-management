@@ -6,6 +6,8 @@ from typing import Optional
 class User(TimeStampMixin, Base):
     __tablename__ = 'users'
     email: Mapped[str] = mapped_column(String(255), unique = True)
+    full_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    phone: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(default = True)
     client: Mapped[Optional["Client"]] = relationship(back_populates = 'user', uselist=False)
