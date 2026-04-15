@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.auth.dependencies import get_current_user
-from app.memberships.schemas import MembershipPlanCreate, MembershipPlanResponse, MembershipCreate
+from app.memberships.schemas import MembershipPlanCreate, MembershipPlanResponse, MembershipCreate, MembershipResponse
 from app.models import Membership
 from app.models.membership import MembershipStatus
 from app.models.membership_plan import MembershipPlan
@@ -38,8 +38,11 @@ async def create_membership_plan(data: MembershipPlanCreate, db: AsyncSession):
     return response
 
 
-async def create_membership(data: MembershipCreate, db: AsyncSession, user = Depends(get_current_user)):
-    membership_plan = db.execute(select(MembershipPlan).where(MembershipPlan.id == data.type_id).scalar_one_or_none())
+async def create_membership(data: MembershipCreate, db: AsyncSession, user):
+    result = await db.execute(select(MembershipPlan).where(MembershipPlan.id == data.type_id))
+    membership_plan = result.scalar_one_or_none()
+    if not membership_plan:
+        raise HTTPException(status_code=404, detail="Membership plan not found")
     membership_end_time = data.start_time + timedelta(days=membership_plan.duration)
     new_membership = Membership(type_id = data.type_id, client_id = user.client.id, start_time = data.start_time,
                                 end_time = membership_end_time, status = MembershipStatus.ACTIVE)
@@ -47,7 +50,7 @@ async def create_membership(data: MembershipCreate, db: AsyncSession, user = Dep
     db.add(new_membership)
     await db.commit()
     await db.refresh(new_membership)
-    response = MembershipPlanResponse.model_validate(new_membership)
+    response = MembershipResponse.model_validate(new_membership)
     return response
 
 
